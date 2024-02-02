@@ -6,4 +6,5 @@ keys
 # files
 .env
 codes.json
+attempts.json
 package-lock.json

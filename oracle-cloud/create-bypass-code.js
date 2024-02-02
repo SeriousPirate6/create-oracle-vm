@@ -48,6 +48,8 @@ module.exports = {
 
             await iframeContentFrame.waitForXPath(xpathExpression);
 
+            await sleep(250);
+
             const spanElements = await iframeContentFrame.$x(xpathExpression);
 
             let bypass_code = "";
