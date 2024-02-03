@@ -8,6 +8,7 @@ const {
 const fs = require("fs");
 const path = require("path");
 const { sleep } = require("../utils/sleep");
+const { addAttemptJSON } = require("../data-collection/create-attempt");
 
 module.exports = {
   createVM: async ({ page }) => {
@@ -75,13 +76,6 @@ module.exports = {
           page: iframeContentFrame,
           xpath: "//a[@data-test-id='testid-up-arrow-cost-estimation']",
         });
-
-        /* closing upper banner */
-        // await searchAndClickButton({
-        //   page: iframeContentFrame,
-        //   xpath:
-        //     "//div[@class='oci-banner action inner-focus-dark']" + "//button",
-        // });
 
         /* select shape */
         await searchAndClickButton({
@@ -162,13 +156,52 @@ module.exports = {
             /* trying create the vm */
             if (createButton[0]) await createButton[0].click();
 
-            /* rand between 22 and 36 */
-            const cooldownSeconds =
-              Math.floor(Math.random() * (36 - 22 + 1)) + 22;
+            const xpathMessageDiv =
+              '//div[@class="oui-savant__Panel--PanelMessageBlock ' +
+              'oui-savant__Panel--PanelMessageBlock__Critical"]';
+
+            /* searching for message div */
+            await iframeContentFrame.waitForXPath(xpathMessageDiv);
+
+            const divMessage = await iframeContentFrame.$x(xpathMessageDiv);
+
+            /* extracting message from div */
+            let message = await iframeContentFrame.evaluate(
+              (element) => element.innerHTML,
+              divMessage[0]
+            );
+
+            if (divMessage.length > 0) {
+              // Access the span element within the divElement
+              const spanElement = await divMessage[0].$("span");
+
+              if (spanElement) {
+                // Get the content of the span
+                message = await iframeContentFrame.evaluate(
+                  (element) => element.textContent,
+                  spanElement
+                );
+                console.log("Message:", message);
+              } else {
+                console.log("No span element found in the div.");
+              }
+            } else {
+              console.log("No div element found with the specified class.");
+            }
+
+            /* logging creation attempt */
+            await addAttemptJSON(message);
+
+            /* rand between 30 and 36 */
+            const cooldownSeconds = Math.floor(Math.random() * 7) + 30;
 
             await sleep(cooldownSeconds * 1000);
           } catch {
             console.log("*** BUTTON CREATE NOT FOUND ***");
+
+            /* logging creation attempt */
+            await addAttemptJSON();
+
             break;
           }
         }
