@@ -1,13 +1,14 @@
-const { emptyInput } = require("../puppeteer-utils/empty-input");
-const {
-  searchAndClickButton,
-} = require("../puppeteer-utils/search-and-click-button");
-const {
-  searchAndFillInput,
-} = require("../puppeteer-utils/search-and-fill-input");
 const fs = require("fs");
 const path = require("path");
 const { sleep } = require("../utils/sleep");
+const {
+  searchAndFillInput,
+} = require("../puppeteer-utils/search-and-fill-input");
+const {
+  searchAndClickButton,
+} = require("../puppeteer-utils/search-and-click-button");
+const { renameFilesInDirectory } = require("../utils/files");
+const { emptyInput } = require("../puppeteer-utils/empty-input");
 const { addAttemptJSON } = require("../data-collection/create-attempt");
 
 module.exports = {
@@ -116,6 +117,9 @@ module.exports = {
         const downloadPath = path.resolve("./keys");
 
         if (!fs.existsSync(downloadPath)) fs.mkdirSync(downloadPath);
+
+        /* renaming all files in the download path, to avoid overwriting */
+        await renameFilesInDirectory(downloadPath);
 
         const client = await page.target().createCDPSession();
 

@@ -1,12 +1,12 @@
-const { createBypassCode } = require("../oracle-cloud/create-bypass-code");
 const {
   insertCloudAccountName,
 } = require("../oracle-cloud/insert-account-name");
-const { insertBypassCode } = require("../oracle-cloud/insert-bypass-code");
 const { login } = require("../oracle-cloud/login");
+const { createVM } = require("../oracle-cloud/create-vm");
 const { rejectCookies } = require("../oracle-cloud/reject-cookies");
+const { insertBypassCode } = require("../oracle-cloud/insert-bypass-code");
+const { createBypassCode } = require("../oracle-cloud/create-bypass-code");
 const { createConnection } = require("../puppeteer-utils/create-connection");
-const { loopCreateVM } = require("./loop-create-vm");
 
 module.exports = {
   fullProcess: async ({ debug }) => {
@@ -35,6 +35,6 @@ module.exports = {
     await createBypassCode({ page });
 
     /* looping the createVM functions with proper cooldowns */
-    await loopCreateVM({ page });
+    await createVM({ page });
   },
 };
